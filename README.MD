@@ -343,7 +343,7 @@ curl -X POST http://192.168.15.111:8091/encode \
 
 为了方便客户端的调用，同时也为了可以对多个语句进行预测，我们用flask编写一个API服务端，使用更简洁的方式来与客户端（应用）来通讯。
 这里的接口简单规划为POST方法，参数名为'txt'，使用JSON返回；
-整个API服务端放在/mobile_apisvr/目录下
+整个API服务端放在/mobile_apisvr/目录下。
 
 核心方法：
 
@@ -387,12 +387,12 @@ python api_service.py
 
 ![运行界面截图](https://github.com/xmxoxo/BERT-train2deploy/blob/master/images/cap01.png?raw=true)
 
-可以看到请求的用时时间为37ms
+可以看到请求的用时时间为37ms，速度还是很快的，当然这个速度跟硬件配置有关。
 
 
 附件：
-本例中训练完成的模型文件.ckpt格式及.pb格式文件，由于比较大，要放到网盘稍后提供下载。
-
-
-
-
+本例中训练完成的模型文件.ckpt格式及.pb格式文件，由于比较大，已放到网盘提供下载：
+```
+链接：https://pan.baidu.com/s/1DgVjRK7zicbTlAAkFp7nWw 
+提取码：8iaw 
+```
