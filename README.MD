@@ -244,10 +244,9 @@ python freeze_graph.py \
 下载代码并安装 ：
 
 ```shell
-cd O:\开源系统\NLP\
 git clone https://github.com/macanv/BERT-BiLSTM-CRF-NER
-cd BERT-BiLSTM-CRF-NER
-py setup.py install
+cd BERT-BiLSTM-CRF-NER/
+python3 setup.py install
 ```
 
 安装完后运行服务，同时指定监听 HTTP 8091端口，并使用GPU 1来跑；
@@ -336,12 +335,64 @@ curl -X POST http://192.168.15.111:8091/encode \
 
 ```
 可以看到对应的两个评论，预测结果一个是1，另一个是-1，计算的速度还是非常很快的。
-通过这种方式来调用还是不太方便，知道了这个通讯方式，我们可以用flask编写一个API服务，为所有的应用统一提供服务。
+通过这种方式来调用还是不太方便，知道了这个通讯方式，我们可以用flask编写一个API服务，
+为所有的应用统一提供服务。
 
 
 ## API服务编写与部署
-未完待续...
 
-## 客户端(网页端的编写与部署）
-未完待续...
+为了方便客户端的调用，同时也为了可以对多个语句进行预测，我们用flask编写一个API服务端，使用更简洁的方式来与客户端（应用）来通讯。
+这里的接口简单规划为POST方法，参数名为'txt'，使用JSON返回；
+整个API服务端放在/mobile_apisvr/目录下
+
+核心方法：
+
+```python
+#对句子进行预测识别
+def class_pred(list_text):
+    #文本拆分成句子
+    #list_text = cut_sent(text)
+    print("total setance: %d" % (len(list_text)) )
+    with BertClient(ip='192.168.15.111', port=5575, port_out=5576, show_server_config=False, check_version=False, check_length=False,timeout=10000 ,  mode='CLASS') as bc:
+        start_t = time.perf_counter()
+        rst = bc.encode(list_text)
+        print('result:', rst)
+        print('time used:{}'.format(time.perf_counter() - start_t))
+    #返回结构为：
+    # rst: [{'pred_label': ['0', '1', '0'], 'score': [0.9983683228492737, 0.9988993406295776, 0.9997349381446838]}]
+    #抽取出标注结果
+    pred_label = rst[0]["pred_label"]
+    result_txt = [ [pred_label[i],list_text[i] ] for i in range(len(pred_label))]
+    return result_txt
+
+```
+
+注意：这里的IP，端口要与服务端的对应。
+
+运行API 服务端：
+
+```shell
+python api_service.py
+```
+
+
+
+## 客户端(网页端）
+
+这里使用一个HTML页面来模拟客户端，在实际项目中可能是具体的应用。
+为了方便演示就把网页模板与API服务端合并在一起了，在网页端使用AJAX来与API服务端通讯。
+
+
+运行界面截图如下：
+
+![运行界面截图](https://github.com/xmxoxo/BERT-train2deploy/blob/master/images/cap01.png?raw=true)
+
+可以看到请求的用时时间为37ms
+
+
+附件：
+本例中训练完成的模型文件.ckpt格式及.pb格式文件，由于比较大，要放到网盘稍后提供下载。
+
+
+
 
