@@ -1,0 +1,188 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+ <head>
+  <title>政策文本句子分类演示</title>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <meta name="author" content="">
+  <meta name="keywords" content="">
+  <meta name="description" content="">
+
+<style>
+.bars{height:auto;width:50%; float:left;}
+
+pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; height:auto;}    
+.string { color: green; }  
+.number { color: darkorange; }
+.boolean { color: blue; }   
+.null { color: magenta; } 
+.key { color: red;}
+
+</style> 
+<link rel="stylesheet" href="/static/css/nlp.css">
+<script src="/static/js/jquery-2.1.4.min.js"></script>
+
+<SCRIPT LANGUAGE="JavaScript">
+<!--
+
+function UrlPOST(txt,objLabel){
+	if (txt=="")
+	{
+		return "error parm"; 
+	}
+	var httpurl = "/api/v0.1/query"; 
+	//alert(httpurl);
+
+	$.ajax({
+			type: "POST",
+			data: "text="+txt,
+			url: httpurl,
+			success: function(data)
+			{   
+				//alert(data);
+				//alert(data['result']);
+				$("#"+ objLabel).html(data['result']);
+				return data
+			}
+	});
+}
+
+
+
+$(document).ready(function(){
+	$("#bt_submit").click(function() {  
+		var txt = $("#txt").val();
+		if (txt=="")
+		{ return; }
+		var voc = ""; 
+		voc = UrlPOST(txt,"result"); 
+	}); 
+
+	//a();
+
+});
+
+function a(){
+	d = {"result":["\u5e02\u7ecf\u4fe1\u5c40\u3001\u5e02\u8d22\u653f\u5c40\u5bf9\u8bc4\u5ba1\u5408\u683c\u7684\u673a\u6784\u6388\u4e88\u201c\u53a6\u95e8\u5e02\u4e2d\u5c0f\u4f01\u4e1a\u516c\u5171\u670d\u52a1\u793a\u8303\u5e73\u53f0\u201d\u79f0\u53f7\u3002"," 2.\u4e3b\u8981\u4e3a\u6c11\u8425\u3001\u4e2d\u5c0f\u4f01\u4e1a\u63d0\u4f9b\u670d\u52a1\u3002"," 3.\u670d\u52a1\u4e1a\u7ee9\u7a81\u51fa\u3002","\u5e74\u670d\u52a1\u4e2d\u5c0f\u4f01\u4e1a50\u5bb6\u4ee5\u4e0a\uff0c\u7528\u6237\u6ee1\u610f\u5ea6\u572880%\u4ee5\u4e0a\uff1b\u8fd1\u4e24\u5e74\u670d\u52a1\u4f01\u4e1a\u6570\u91cf\u589e\u957f10%\u4ee5\u4e0a\uff0c\u5728\u4e13\u4e1a\u670d\u52a1\u9886\u57df\u6216\u533a\u57df\u5185\u6709\u4e00\u5b9a\u7684\u58f0\u8a89\u548c\u54c1\u724c\u5f71\u54cd\u529b\u3002"," 4.\u6709\u56fa\u5b9a\u7684\u7ecf\u8425\u670d\u52a1\u573a\u6240\u548c\u5fc5\u8981\u7684\u670d\u52a1\u8bbe\u65bd\u3001\u4eea\u5668\u8bbe\u5907\u7b49\uff1b\u6709\u7ec4\u7ec7\u5e26\u52a8\u793e\u4f1a\u670d\u52a1\u8d44\u6e90\u7684\u80fd\u529b\uff0c\u96c6\u805a\u670d\u52a1\u673a\u67845\u5bb6\u4ee5\u4e0a\u3002"," 5.\u6709\u5065\u5168\u7684\u7ba1\u7406\u5236\u5ea6\uff0c\u89c4\u8303\u7684\u670d\u52a1\u6d41\u7a0b\u3001\u5408\u7406\u7684\u6536\u8d39\u6807\u51c6\u548c\u5b8c\u5584\u7684\u670d\u52a1\u8d28\u91cf\u4fdd\u8bc1\u63aa\u65bd\uff1b\u5bf9\u5c0f\u578b\u5fae\u578b\u4f01\u4e1a\u7684\u670d\u52a1\u6536\u8d39\u6709\u76f8\u5e94\u7684\u4f18\u60e0\u89c4\u5b9a\uff0c\u63d0\u4f9b\u7684\u516c\u76ca\u6027\u670d\u52a1\u6216\u4f4e\u6536\u8d39\u670d\u52a1\u5360\u5230\u603b\u670d\u52a1\u91cf\u768420%\u4ee5\u4e0a\uff1b\u6709\u660e\u786e\u7684\u53d1\u5c55\u89c4\u5212\u548c\u5e74\u5ea6\u670d\u52a1\u76ee\u6807\u3002"," 6.\u6709\u5065\u5168\u7684\u7ba1\u7406\u56e2\u961f\u548c\u4eba\u624d\u961f\u4f0d\u3002"," 7.\u79ef\u6781\u53c2\u52a0\u4e2d\u5c0f\u4f01\u4e1a\u4e3b\u7ba1\u90e8\u95e8\u7ec4\u7ec7\u7684\u4e3a\u4e2d\u5c0f\u4f01\u4e1a\u670d\u52a1\u7684\u63a8\u5e7f\u6d3b\u52a8\uff0c\u4e0e\u5927\u4e13\u9662\u6821\u3001\u79d1\u7814\u9662\u6240\u3001\u884c\u4e1a\u534f\u4f1a\u3001\u4e13\u4e1a\u670d\u52a1\u673a\u6784\u3001\u4f01\u4e1a\u7b49\u76f8\u5173\u793e\u4f1a\u670d\u52a1\u8d44\u6e90\u6709\u7a33\u5b9a\u3001\u5e7f\u6cdb\u7684\u5408\u4f5c\u5173\u7cfb\uff0c\u5177\u6709\u8f83\u5f3a\u7684\u8d44\u6e90\u6574\u5408\u80fd\u529b\u548c\u670d\u52a1\u8f90\u5c04\u5e26\u52a8\u80fd\u529b\u3002"," \u7533\u62a5\u673a\u6784\u5e94\u6ee1\u8db3\u76f8\u5173\u529f\u80fd\u8981\u6c42\uff1a 1.\u4fe1\u606f\u670d\u52a1\u3002","\u5177\u6709\u57f9\u8bad\u8d44\u8d28\uff0c\u6709\u5b8c\u5584\u7684\u57f9\u8bad\u670d\u52a1\u8bc4\u4ef7\u673a\u5236\uff0c\u5e74\u57f9\u8bad800\u4eba\u6b21\u4ee5\u4e0a\u3002"," \u652f\u6301\u65b9\u5f0f \u5e02\u7ecf\u4fe1\u5c40\u5bf9\u8bc4\u5ba1\u5408\u683c\u7684\u673a\u6784\u6388\u4e88\u201c\u53a6\u95e8\u5e02\u4e2d\u5c0f\u4f01\u4e1a\u516c\u5171\u670d\u52a1\u793a\u8303\u5e73\u53f0\u201d\u79f0\u53f7\u3002","\u7eb8\u8d28\u7533\u62a5\u8d44\u6599\u62a5\u9001\u65f6\u95f4\u4e3a2018\u5e745\u670829\u65e5\u201431\u65e5\uff08\u96c6\u4e2d\u6536\u4ef6\uff09\uff0c\u540c\u65f6\u8981\u6c42\u7535\u5b50\u7248\u4e00\u8d77\u4e0a\u62a5\uff0c\u8d85\u8fc7\u89c4\u5b9a\u65f6\u9650\u4e0d\u4e88\u53d7\u7406\u3002"]}
+
+	showresult(d);
+//	r = d['result'];
+//	//alert(r);
+//	//alert(r.length);
+//	b = r.join('\n');
+//	//alert(b);
+//	c='共找到'+r.length+'句内容:\n';
+//	for(var i=0;i<r.length;i++){
+//		c+= "第"+ (i+1) + "句:" + r[i] + "\n\n";
+//	}
+//
+//	$("#result").html(c);
+}
+
+function showresult(dat){
+	r = dat['result'];
+	c='共找到'+r.length+'句内容:\n';
+	for(var i=0;i<r.length;i++){
+		c+= "第"+ (i+1) + "句:" + r[i] + "\n\n";
+	}
+
+	$("#result").html(c);
+
+}
+
+
+//-->
+</SCRIPT>
+
+ </head>
+
+<body class="ai-platform">
+<div class="nlp-word">
+	<div class="word-head">政策文本语句分类演示　版本: {{ version }}</div>
+	<div class="word-form">
+		<div class="com-text-cover">
+			<div class="mid-down-title">
+				<span class="down-title-des">请输入待分析的文本：</span>
+				<!-- <span class="com-click">随机示例</span> 
+				<input type="button" value="提交" id="bt_submit" />-->
+			</div>
+			<textarea name="txt" id="txt" spellcheck="false" maxlength="" class="com-txt" onfocus="this.select()">2018年厦门市中小企业公共服务示范平台认定
+
+政策类别：厦门市中小企业发展专项资金
+政策级别：市级
+企业成立年限：不限
+主要扶持行业：商务服务, 其他行业
+企业规模：大型企业, 中型企业
+支持方式：评选认定
+归口部门：厦门市经济和信息化局
+申报中 
+申报截止时间
+2018年5月31日 
+摘要
+面向为中小企业提供信息、技术、创业、培训、融资等公共服务，业绩突出、公信度高、服务面广，具有示范带动作用的服务平台。市经信局、市财政局对评审合格的机构授予“厦门市中小企业公共服务示范平台”称号。
+主要申报条件
+　　申报机构应同时具备以下基本条件： 
+　　1. 具有独立法人资格及从事相关服务的资质或能力，运营两年以上，资产总额不低于100万元，财务收支状况良好，经营规范，具有良好的发展前景和可持续发展能力。
+　　2. 主要为民营、中小企业提供服务。
+　　3. 服务业绩突出。年服务中小企业50家以上，用户满意度在80%以上；近两年服务企业数量增长10%以上，在专业服务领域或区域内有一定的声誉和品牌影响力。
+　　4. 有固定的经营服务场所和必要的服务设施、仪器设备等；有组织带动社会服务资源的能力，集聚服务机构5家以上。 
+　　5. 有健全的管理制度，规范的服务流程、合理的收费标准和完善的服务质量保证措施；对小型微型企业的服务收费有相应的优惠规定，提供的公益性服务或低收费服务占到总服务量的20%以上；有明确的发展规划和年度服务目标。
+　　6. 有健全的管理团队和人才队伍。主要负责人诚信、守法，具有开拓创新精神、丰富的实践经验和较高的管理水平；从事为中小企业服务的人员不少于15人，其中大专及以上学历和中级及以上技术职称专业人员的比例占70%以上。
+　　7. 积极参加中小企业主管部门组织的为中小企业服务的推广活动，与大专院校、科研院所、行业协会、专业服务机构、企业等相关社会服务资源有稳定、广泛的合作关系，具有较强的资源整合能力和服务辐射带动能力。
+ 
+　　申报机构应满足相关功能要求： 
+　　1. 信息服务。充分利用信息网络技术手段，形成便于中小企业查询的、开放的信息服务系统；具有在线服务、线上线下联动功能，线下年服务企业数量50家以上；年组织开展的相关服务活动4次以上。
+　　2. 技术服务。具有组织技术服务资源的能力，并建立良好的协同服务机制；具有专家库和新产品、新技术项目库等；具备条件的应开放大型、精密仪器设备与中小企业共享；年开展技术洽谈、项目推介和知识产权等服务活动4次以上。 
+　　3. 创业服务。具有较强的创业辅导能力，建有创业项目库、创业服务热线等；开展相关政务代理服务；年开展创业项目洽谈、推介活动4次以上。
+　　4. 培训服务。具有培训资质，有完善的培训服务评价机制，年培训800人次以上。
+　　5. 融资服务。年组织银企对接活动4次以上；年组织融资知识讲座4次以上；组织开展融资产品咨询、企业融资策划、推荐和融资代理等服务。
+支持方式
+　　市经信局对评审合格的机构授予“厦门市中小企业公共服务示范平台”称号。
+申报材料及方式
+　　申报材料要求（一式2份）
+　　（一）厦门市中小企业公共服务示范平台申请表；
+　　（二）法人执照复印件（须核验原件）；
+　　（三）固定的经营服务场所证明复印件（房产证、租赁合同，须核验原件）；
+　　（四）申报机构情况介绍；
+　　（五）开展相关服务的证明材料（通知、照片、总结等）； 
+　　（六）主要服务设备、仪器及软件清单； 
+　　（七）主要管理人员和专业技术人员名单及职称情况一览表；
+　　（八）服务的中小企业名单及服务评价表； 
+　　（九）经会计师事务所审计的2017年度审计报告及服务收支情况的专项审计（正本要求原件，封面需含报备防伪码）； 
+　　（十）2017年度纳税证明[即国、地税部门出具的缴税证明（正本需要原件）]； 
+　　（十一）申报机构2017年社会保险参保缴费情况证明；
+　　（十二）与项目有关的证明（如相关资质证书等）；
+　　（十三）真实性负责的声明。
+ 
+　　符合条件的申报单位请按通知要求认真填报完整2018年中小企业公共服务平台认定申报资料和所需表格，并胶装成册（一式两份）。纸质申报资料报送时间为2018年5月29日—31日（集中收件），同时要求电子版一起上报，超过规定时限不予受理。
+ 
+　　资料报送地址为厦门市思明区湖滨南路83号港澳中心6楼创新创业部（非矿大厦旁），同时请携带电子版资料进行现场拷贝，收件时间为上午08:30-11:30，下午14:30-17:00。
+联系方式
+　　资料报送地址为厦门市思明区湖滨南路83号港澳中心6楼创新创业部（非矿大厦旁），同时请携带电子版资料进行现场拷贝，收件时间为上午08:30-11:30，下午14:30-17:00。
+ 
+　　申报辅导联系方式
+　　厦门市中小企业服务中心创新与创业服务部
+　　联系人：廖女士
+　　电话：2233621
+　　传真：2219236
+　　地址：厦门市湖滨南路83号港澳中心6楼
+			</textarea>
+			<div class="ed-form-down"><span class="ed-down-tips">提示：无需处理格式，直接复制文本内容即可</span></div>
+
+		</div>
+	</div>
+	<!-- <div class="unsatis-body"><span class="unsatis-info">分析结果 :</span></div> -->
+	<div class="result-cover">
+			<div class="result-left-title">文本语句分类提取：
+			<input type="button" value=" 提 取 " id="bt_submit" />
+			 <!-- <span class="com-click" id="bt_voc"> 提 取 </span> -->
+			</div>
+				<textarea name="result" id="result" spellcheck="false" maxlength="" class="com-txt"></textarea> 
+			<br/>
+	</div>
+
+
+
+</div>
+
+ </body>
+</html>

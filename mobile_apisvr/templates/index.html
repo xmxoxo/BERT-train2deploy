@@ -1,0 +1,100 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+ <head>
+  <title>手机评论情感分类演示</title>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <meta name="author" content="">
+  <meta name="keywords" content="">
+  <meta name="description" content="">
+
+<style>
+.bars{height:auto;width:50%; float:left;}
+
+pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; height:auto;}    
+.string { color: green; }  
+.number { color: darkorange; }
+.boolean { color: blue; }   
+.null { color: magenta; } 
+.key { color: red;}
+
+</style> 
+<link rel="stylesheet" href="static/css/nlp.css">
+<script src="static/js/jquery-2.1.4.min.js"></script>
+
+<SCRIPT LANGUAGE="JavaScript">
+<!--
+
+function UrlPOST(txt,myfun){
+	if (txt=="")
+	{
+		return "error parm"; 
+	}
+	var httpurl = "/api/v0.1/query"; 
+	//alert(httpurl);
+
+	$.ajax({
+			type: "POST",
+			data: "text="+txt,
+			url: httpurl,
+			//async:false,
+			success: function(data)
+			{   
+				//alert(data);
+				//alert(data['result']);
+				//$("#"+ objLabel).html(data['result']);
+				//return data
+				myfun(data);
+			}
+	});
+}
+
+function showresult(dat){
+	r = dat['result'];
+	c='共'+r.length+'句内容:\n';
+	for(var i=0;i<r.length;i++){
+		c+= "第"+ (i+1) + "句:" + r[i] + "\n\n";
+	}
+	$("#result").html(c);
+}
+
+$(document).ready(function(){
+	$("#bt_submit").click(function() {  
+		var txt = $("#txt").val();
+		if (txt=="")
+		{ return; }
+		var voc = ""; 
+		voc = UrlPOST(txt,showresult); 
+	}); 
+});
+
+
+//-->
+</SCRIPT>
+
+ </head>
+
+<body class="ai-platform">
+<div class="nlp-word">
+	<div class="word-head">手机评论情感分类演示　版本: {{ version }}</div>
+	<div class="word-form">
+		<div class="com-text-cover">
+			<div class="mid-down-title">
+				<span class="down-title-des">请输入待分析的文本：</span>
+			</div>
+			<textarea name="txt" id="txt" spellcheck="false" maxlength="" class="com-txt" onfocus="this.select()">总的来说，这款手机性价比是特别高的。
+			槽糕的售后服务！！！店大欺客
+			</textarea>
+			<div class="ed-form-down"><span class="ed-down-tips">提示：无需处理格式，直接复制文本内容即可</span></div>
+		</div>
+	</div>
+	<div class="result-cover">
+			<div class="result-left-title">分类结果：
+			<input type="button" value=" 提交 " id="bt_submit" />
+			</div>
+				<textarea name="result" id="result" spellcheck="false" maxlength="" class="com-txt"></textarea> 
+			<br/>
+	</div>
+  </div>
+
+ </body>
+</html>
