@@ -28,7 +28,8 @@ C-->B
 	最终的应用端；
 	我这里使用一个HTML网页来实现；
 
-项目完整源码地址：[BERT从训练到部署git源码](https://github.com/xmxoxo/BERT-train2deploy)
+本项目完整源码地址：[BERT从训练到部署git源码](https://github.com/xmxoxo/BERT-train2deploy)
+项目博客地址: [BERT从训练到部署](https://blog.csdn.net/xmxoxo/article/details/89315370)
 
 ## 关键节点
 主要包括以下关键节点：
@@ -319,8 +320,7 @@ bert-base-serving-start \
 
 可以使用curl命令来测试一下
 
-```
-
+```shell
 curl -X POST http://192.168.15.111:8091/encode \
   -H 'content-type: application/json' \
   -d '{"id": 111,"texts": ["总的来说，这款手机性价比是特别高的。","槽糕的售后服务！！！店大欺客"], "is_tokenized": false}'
@@ -342,10 +342,45 @@ curl -X POST http://192.168.15.111:8091/encode \
 ## API服务编写与部署
 
 为了方便客户端的调用，同时也为了可以对多个语句进行预测，我们用flask编写一个API服务端，使用更简洁的方式来与客户端（应用）来通讯。
-这里的接口简单规划为POST方法，参数名为'txt'，使用JSON返回；
-整个API服务端放在/mobile_apisvr/目录下。
+整个API服务端放在独立目录`/mobile_apisvr/`目录下。
 
-核心方法：
+用flask创建服务端并调用主方法,命令行参数如下：
+
+```python
+def main_cli ():
+    pass
+    parser = argparse.ArgumentParser(description='API demo server')
+    parser.add_argument('-ip', type=str, default="0.0.0.0",
+                        help='chinese google bert model serving')
+    parser.add_argument('-port', type=int, default=8910,
+                        help='listen port,default:8910')
+
+    args = parser.parse_args()
+
+    flask_server(args)
+
+```
+
+主方法里创建APP对象：
+
+```python
+
+    app.run(
+        host = args.ip,     #'0.0.0.0',
+        port = args.port,   #8910,  
+        debug = True 
+    )
+
+```
+
+这里的接口简单规划为`/api/v0.1/query`, 使用POST方法，参数名为'text'，使用JSON返回结果；
+路由配置:
+
+```python
+@app.route('/api/v0.1/query', methods=['POST'])
+```
+
+API服务端的核心方法，是与BERT-Serving进行通讯，需要创建一个客户端BertClient：
 
 ```python
 #对句子进行预测识别
@@ -366,7 +401,6 @@ def class_pred(list_text):
     return result_txt
 
 ```
-
 注意：这里的IP，端口要与服务端的对应。
 
 运行API 服务端：
@@ -374,6 +408,17 @@ def class_pred(list_text):
 ```shell
 python api_service.py
 ```
+在代码中的debug设置为True，这样只要更新文件，服务就会自动重新启动，比较方便调试。
+运行截图如下：
+
+![API服务端](https://github.com/xmxoxo/BERT-train2deploy/blob/master/images/cap00.png?raw=true)
+
+
+到这一步也可以使用curl或者其它工具进行测试，也可以等完成网页客户端后一并调试。
+我这里使用chrome插件 API-debug来进行测试，如下图：
+
+![API测试](https://github.com/xmxoxo/BERT-train2deploy/blob/master/images/cap01.png?raw=true)
+
 
 
 
@@ -382,10 +427,38 @@ python api_service.py
 这里使用一个HTML页面来模拟客户端，在实际项目中可能是具体的应用。
 为了方便演示就把网页模板与API服务端合并在一起了，在网页端使用AJAX来与API服务端通讯。
 
+创建模板目录`templates`，使用模板来加载一个HTML,模板文件名为`index.html`。
+在HTML页面里使用AJAX来调用接口,由于是在同一个服务器，同一个端口，地址直接用`/api/v0.1/query`就可以了，
+在实际项目中，客户应用端与API是分开的，则需要指定接口URL地址，同时还要注意数据安全性。
+代码如下：
+
+```Javascript
+function UrlPOST(txt,myfun){
+	if (txt=="")
+	{
+		return "error parm"; 
+	}
+	var httpurl = "/api/v0.1/query"; 
+	$.ajax({
+			type: "POST",
+			data: "text="+txt,
+			url: httpurl,
+			//async:false,
+			success: function(data)
+			{   
+				myfun(data);
+			}
+	});
+}
+
+```
+
+启动API服务端后，可以使用`IP+端口`来访问了，这里的地址是`http://192.168.15.111:8910/`
+
 
 运行界面截图如下：
 
-![运行界面截图](https://github.com/xmxoxo/BERT-train2deploy/blob/master/images/cap01.png?raw=true)
+![运行界面截图](https://github.com/xmxoxo/BERT-train2deploy/blob/master/images/cap05.png?raw=true)
 
 可以看到请求的用时时间为37ms，速度还是很快的，当然这个速度跟硬件配置有关。
 
@@ -396,3 +469,15 @@ python api_service.py
 链接：https://pan.baidu.com/s/1DgVjRK7zicbTlAAkFp7nWw 
 提取码：8iaw 
 ```
+如果你想跳过前面模型的训练过程，可以直接使用训练好的模型，来完成后面的部署。
+
+
+## 参考资料:
++ [https://github.com/google-research/bert](https://github.com/google-research/bert)
+      
++ [https://github.com/hanxiao/bert-as-service](https://github.com/hanxiao/bert-as-service)
+
++ [https://github.com/macanv/BERT-BiLSTM-CRF-NER](https://github.com/macanv/BERT-BiLSTM-CRF-NER)
+
+> 欢迎批评指正，联系邮箱(xmxoxo@qq.com)
+
