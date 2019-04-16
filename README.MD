@@ -8,7 +8,9 @@ Tag: BERT 训练 部署
 在下面我将以一个“手机评论的情感分类”为例子，简要说明从训练到部署的全部流程。最终完成后可以使用一个网页进行交互，实时地对输入的评论语句进行分类判断。
 
 ## 基本架构
+
 基本架构为：
+
 ```mermaid
 graph LR
 A(BERT模型服务端) --> B(API服务端)
@@ -16,6 +18,27 @@ B-->A
 B --> C(应用端)
 C-->B
 ```
+
+```
++-------------------+
+|   应用端(HTML)    | 
++-------------------+
+         ^^
+         ||
+         VV
++-------------------+
+|     API服务端     | 
++-------------------+
+         ^^
+         ||
+         VV
++-------------------+
+|  BERT模型服务端   | 
++-------------------+
+
+```
+
+
 架构说明：
 **BERT模型服务端**
 	加载模型，进行实时预测的服务；
@@ -30,6 +53,15 @@ C-->B
 
 本项目完整源码地址：[BERT从训练到部署git源码](https://github.com/xmxoxo/BERT-train2deploy)
 项目博客地址: [BERT从训练到部署](https://blog.csdn.net/xmxoxo/article/details/89315370)
+
+附件：
+本例中训练完成的模型文件.ckpt格式及.pb格式文件，由于比较大，已放到网盘提供下载：
+```
+链接：https://pan.baidu.com/s/1DgVjRK7zicbTlAAkFp7nWw 
+提取码：8iaw 
+```
+如果你想跳过前面模型的训练过程，可以直接使用训练好的模型，来完成后面的部署。
+
 
 ## 关键节点
 主要包括以下关键节点：
@@ -210,7 +242,16 @@ sudo python run_mobile.py \
 
 ## 模型格式转化
 
-由于模型服务端使用的是.pb格式的模型文件，所以需要把生成的ckpt格式模型文件转换成.pb格式的模型文件。
+到这里我们已经训练得到了模型，但这个模型是.ckpt的文件格式,文件比较大，并且有三个文件：
+
+```
+-rw-r--r-- 1 root root 1227239468 Apr 15 17:46 model.ckpt-759.data-00000-of-00001
+-rw-r--r-- 1 root root      22717 Apr 15 17:46 model.ckpt-759.index
+-rw-r--r-- 1 root root    3948381 Apr 15 17:46 model.ckpt-759.meta
+```
+
+可以看到，模板文件非常大，大约有1.17G。
+后面使用的模型服务端，使用的是.pb格式的模型文件，所以需要把生成的ckpt格式模型文件转换成.pb格式的模型文件。
 我这里提供了一个转换工具:`freeze_graph.py`，使用如下：
 
 ```shell
@@ -237,18 +278,43 @@ python freeze_graph.py \
 ```
 
 执行成功后可以看到在`model_dir`目录会生成一个`classification_model.pb` 文件。
+转为.pb格式的模型文件，同时也可以缩小模型文件的大小,可以看到转化后的模型文件大约是390M。
+
+```
+-rw-rw-r-- 1 hexi hexi 409326375 Apr 15 17:58 classification_model.pb
+```
 
 ## 服务端部署与启动
 
-现在可以安装服务端了，使用的是 BERT-BiLSTM-CRF-NER，项目地址：[https://github.com/macanv/BERT-BiLSTM-CRF-NER](https://github.com/macanv/BERT-BiLSTM-CRF-NER)
+现在可以安装服务端了，使用的是 bert-base, 来自于项目`BERT-BiLSTM-CRF-NER`, 服务端只是该项目中的一个部分。
+项目地址：[https://github.com/macanv/BERT-BiLSTM-CRF-NER](https://github.com/macanv/BERT-BiLSTM-CRF-NER) ，感谢Macanv同学提供这么好的项目。
+
+这里要说明一下，我们经常会看到bert-as-service 这个项目的介绍，它只能加载BERT的预训练模型，输出文本向量化的结果。
+而如果要加载fine-turing后的模型，就要用到 bert-base 了，详请请见：
+[基于BERT预训练的中文命名实体识别TensorFlow实现](https://blog.csdn.net/macanv/article/details/85684284)
+
 
 下载代码并安装 ：
+```shell
+pip install bert-base==0.0.7 -i https://pypi.python.org/simple
+```
+或者 
 
 ```shell
 git clone https://github.com/macanv/BERT-BiLSTM-CRF-NER
 cd BERT-BiLSTM-CRF-NER/
 python3 setup.py install
 ```
+
+
+使用 bert-base 有三种运行模式，分别支持三种模型，使用参数`-mode` 来指定：
++ NER      序列标注类型，比如命名实体识别；
++ CLASS    分类模型，就是本文中使用的模型
++ BERT     这个就是跟bert-as-service 一样的模式了
+
+之所以要分成不同的运行模式，是因为不同模型对输入内容的预处理是不同的，命名实体识别NER是要进行序列标注；
+而分类模型只要返回label就可以了。
+
 
 安装完后运行服务，同时指定监听 HTTP 8091端口，并使用GPU 1来跑；
 
@@ -271,7 +337,7 @@ bert-base-serving-start \
     -device_map 1 
 ```
 **注意**：port 和 port_out 这两个参数是API调用的端口号，
-默认是5555和5556,如果你准备部署多个模型服务，那一定要指定自己的端口号，避免冲突。
+默认是5555和5556,如果你准备部署多个模型服务实例，那一定要指定自己的端口号，避免冲突。
 我这里是改为： 5575 和 5576
 
 如果报错没运行起来，可能是有些模块没装上,都是 bert_base/server/http.py里引用的，装上就好了：
@@ -316,9 +382,21 @@ bert-base-serving-start \
 
 ```
 
+补充说明一下内存的使用情况：
+BERT在训练时需要加载完整的模型数据，要用的内存是比较多的，差不多要10G，我这里用的是GTX 1080 Ti 11G。
+但在训练完后，按上面的方式部署加载pb模型文件时，就不需要那么大了，上面也可以看到pb模型文件就是390M。
+其实只要你使用的是BERT base 预训练模型，最终的得到的pb文件大小都是差不多的。
+
+还有同学问到能不能用CPU来部署，我这里没尝试过，但我想肯定是可以的，只是在计算速度上跟GPU会有差别。
+
+我这里使用GPU 1来实时预测，同时加载了2个BERT模型,截图如下:
+
+![GPU截图](https://github.com/xmxoxo/BERT-train2deploy/blob/master/images/cap02.png?raw=true)
+
+
 ### 端口测试
 
-可以使用curl命令来测试一下
+模型服务端部署完成了，可以使用curl命令来测试一下它的运行情况。
 
 ```shell
 curl -X POST http://192.168.15.111:8091/encode \
@@ -461,15 +539,6 @@ function UrlPOST(txt,myfun){
 ![运行界面截图](https://github.com/xmxoxo/BERT-train2deploy/blob/master/images/cap05.png?raw=true)
 
 可以看到请求的用时时间为37ms，速度还是很快的，当然这个速度跟硬件配置有关。
-
-
-附件：
-本例中训练完成的模型文件.ckpt格式及.pb格式文件，由于比较大，已放到网盘提供下载：
-```
-链接：https://pan.baidu.com/s/1DgVjRK7zicbTlAAkFp7nWw 
-提取码：8iaw 
-```
-如果你想跳过前面模型的训练过程，可以直接使用训练好的模型，来完成后面的部署。
 
 
 ## 参考资料:
