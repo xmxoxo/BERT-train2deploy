@@ -124,6 +124,14 @@ def create_classification_model(bert_config, is_training, input_ids, input_mask,
     return (loss, per_example_loss, logits, probabilities)
 
 
+def init_predict_var(path):
+    label2id_file = os.path.join(path, 'label2id.pkl')
+    if os.path.exists(label2id_file):
+        with open(label2id_file, 'rb') as rf:
+            label2id = pickle.load(rf)
+            id2label = {value: key for key, value in label2id.items()}
+            num_labels = len(label2id.items())
+    return num_labels, label2id, id2label
 
 
 
@@ -143,19 +151,18 @@ def optimize_class_model(args, logger=None):
         # 如果PB文件已经存在则，返回PB文件的路径，否则将模型转化为PB文件，并且返回存储PB文件的路径
         if args.model_pb_dir is None:
             tmp_file = args.model_dir
-        #    # 获取当前的运行路径
-        #    tmp_file = os.path.join(os.getcwd(), 'predict_optimizer')
-        #    if not os.path.exists(tmp_file):
-        #        os.mkdir(tmp_file)
         else:
             tmp_file = args.model_pb_dir
-        
-        #latest_checkpoint = tf.train.latest_checkpoint(args.model_dir)
+
         pb_file = os.path.join(tmp_file, 'classification_model.pb')
         if os.path.exists(pb_file):
             print('pb_file exits', pb_file)
             return pb_file
-        #import tensorflow as tf
+        
+        #增加 从label2id.pkl中读取num_labels, 这样也可以不用指定num_labels参数； 2019/4/17
+        if not args.num_labels:
+            num_labels, label2id, id2label = init_predict_var()
+        #---
 
         graph = tf.Graph()
         with graph.as_default():
@@ -164,12 +171,13 @@ def optimize_class_model(args, logger=None):
                 input_mask = tf.placeholder(tf.int32, (None, args.max_seq_len), 'input_mask')
 
                 bert_config = modeling.BertConfig.from_json_file(os.path.join(args.bert_model_dir, 'bert_config.json'))
-                #from bert_base.train.models import create_classification_model
-                #from models import create_classification_model
+
                 loss, per_example_loss, logits, probabilities = create_classification_model(bert_config=bert_config, is_training=False,
-                    input_ids=input_ids, input_mask=input_mask, segment_ids=None, labels=None, num_labels=args.num_labels)
+                    input_ids=input_ids, input_mask=input_mask, segment_ids=None, labels=None, num_labels=num_labels)
+                
                 # pred_ids = tf.argmax(probabilities, axis=-1, output_type=tf.int32, name='pred_ids')
                 # pred_ids = tf.identity(pred_ids, 'pred_ids')
+
                 probabilities = tf.identity(probabilities, 'pred_prob')
                 saver = tf.train.Saver()
 
@@ -182,6 +190,7 @@ def optimize_class_model(args, logger=None):
                 from tensorflow.python.framework import graph_util
                 tmp_g = graph_util.convert_variables_to_constants(sess, graph.as_graph_def(), ['pred_prob'])
                 logger.info('predict cut finished !!!')
+        
         # 存储二进制模型到文件中
         logger.info('write graph to a tmp file: %s' % pb_file)
         with tf.gfile.GFile(pb_file, 'wb') as f:
@@ -214,7 +223,7 @@ if __name__ == '__main__':
                         help='directory of a pretrained BERT model,default = model_dir')
     parser.add_argument('-max_seq_len', type=int, default=128,
                         help='maximum length of a sequence,default:128')
-    parser.add_argument('-num_labels', type=int, default=2,
+    parser.add_argument('-num_labels', type=int, default=None,
                         help='length of all labels,default=2')
     parser.add_argument('-verbose', action='store_true', default=False,
                         help='turn on tensorflow logging for debug')
