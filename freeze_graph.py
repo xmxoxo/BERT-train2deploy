@@ -18,6 +18,7 @@ import modeling
 import logging
 import tensorflow as tf
 import argparse
+import pickle
 
 
 def set_logger(context, verbose=False):
@@ -125,12 +126,18 @@ def create_classification_model(bert_config, is_training, input_ids, input_mask,
 
 
 def init_predict_var(path):
+    num_labels = 2
+    label2id = None
+    id2label = None
     label2id_file = os.path.join(path, 'label2id.pkl')
     if os.path.exists(label2id_file):
         with open(label2id_file, 'rb') as rf:
             label2id = pickle.load(rf)
             id2label = {value: key for key, value in label2id.items()}
             num_labels = len(label2id.items())
+        print('num_labels:%d' % num_labels)
+    else:
+        print('Can\'t found %s' % label2id_file)
     return num_labels, label2id, id2label
 
 
@@ -150,18 +157,18 @@ def optimize_class_model(args, logger=None):
     try:
         # 如果PB文件已经存在则，返回PB文件的路径，否则将模型转化为PB文件，并且返回存储PB文件的路径
         if args.model_pb_dir is None:
-            tmp_file = args.model_dir
+            tmp_dir = args.model_dir
         else:
-            tmp_file = args.model_pb_dir
+            tmp_dir = args.model_pb_dir
 
-        pb_file = os.path.join(tmp_file, 'classification_model.pb')
+        pb_file = os.path.join(tmp_dir, 'classification_model.pb')
         if os.path.exists(pb_file):
             print('pb_file exits', pb_file)
             return pb_file
         
         #增加 从label2id.pkl中读取num_labels, 这样也可以不用指定num_labels参数； 2019/4/17
         if not args.num_labels:
-            num_labels, label2id, id2label = init_predict_var()
+            num_labels, label2id, id2label = init_predict_var(tmp_dir)
         #---
 
         graph = tf.Graph()
