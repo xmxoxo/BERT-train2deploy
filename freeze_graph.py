@@ -169,6 +169,8 @@ def optimize_class_model(args, logger=None):
         #增加 从label2id.pkl中读取num_labels, 这样也可以不用指定num_labels参数； 2019/4/17
         if not args.num_labels:
             num_labels, label2id, id2label = init_predict_var(tmp_dir)
+        else:
+            num_labels = args.num_labels
         #---
 
         graph = tf.Graph()
